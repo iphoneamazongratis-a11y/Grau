@@ -1,32 +1,37 @@
-# Grau Real Simulator Web
+BR Auto Open World Web
 
-Primeira versão jogável de um simulador 3D web privado de grau de moto.
+Jogo 3D web privado inspirado em mundo aberto brasileiro, carros/motos e mapa urbano.
 
-## Como usar no iPhone
-1. Hospede os arquivos em Netlify, Vercel ou GitHub Pages.
-2. Abra o link no Safari.
-3. Entre com a senha: 1234
+Senha padrão:
+1234
+
+Como usar no iPhone:
+1. Extraia o ZIP.
+2. Hospede a pasta no Netlify, Vercel ou GitHub Pages.
+3. Abra o link no Safari.
 4. Toque em compartilhar > Adicionar à Tela de Início.
 
-## Arquivos
+Arquivos:
 - index.html
 - style.css
 - game.js
 
-## Como trocar a senha
-Abra `game.js` e altere:
-
+Como mudar a senha:
+Abra game.js e altere:
 const PRIVATE_PASSWORD = "1234";
 
-## Controles
-- ACELERAR
-- GRAU
-- FRENTE
-- FREIO D.
-- FREIO T.
-- EMBREAGEM
-- MARCHA +
-- MARCHA -
+Recursos da versão:
+- mapa aberto estilo Brasil
+- ruas, prédios, praça, posto e área de favela
+- carro 3D simples
+- moto 3D simples
+- troca entre carro/moto
+- câmera terceira pessoa
+- controles mobile
+- velocímetro, RPM, marcha e tipo de veículo
+- buzina simples
+- freio de mão/drift básico no carro
+- empinada básica na moto com freio de mão
 
-## Observação
-Essa é uma base inicial web. Não é física 100% real ainda, mas já serve como protótipo para evoluir.
+Observação:
+É uma base inicial web. Não copia o jogo Elite Auto Brasil, apenas segue a ideia de mundo aberto BR.

@@ -1,16 +1,16 @@
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #050505;
-  font-family: Arial, Helvetica, sans-serif;
+  background: #060606;
   color: white;
+  font-family: Arial, Helvetica, sans-serif;
   touch-action: none;
 }
 
@@ -23,66 +23,57 @@ html, body {
 #loginScreen {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at top, rgba(255,255,255,.12), transparent 35%),
-    linear-gradient(145deg, #000, #111 45%, #050505);
-  z-index: 50;
+  z-index: 99;
   display: flex;
   align-items: center;
   justify-content: center;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.16), transparent 36%),
+    linear-gradient(145deg, #000, #151515, #060606);
 }
 
 .loginBox {
   width: min(88vw, 360px);
   padding: 28px;
-  border: 1px solid rgba(255,255,255,.16);
   border-radius: 24px;
-  background: rgba(0,0,0,.72);
-  box-shadow: 0 0 50px rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.78);
   text-align: center;
   backdrop-filter: blur(10px);
+  box-shadow: 0 0 60px rgba(255,255,255,.10);
 }
 
 .loginBox h1 {
   margin: 0;
-  font-size: 42px;
-  letter-spacing: -2px;
+  font-size: 44px;
   text-transform: uppercase;
+  letter-spacing: -2px;
 }
 
 .loginBox p {
   opacity: .75;
-  margin: 8px 0 22px;
+}
+
+.loginBox input, .loginBox button {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  margin-top: 10px;
+  font-size: 18px;
 }
 
 .loginBox input {
-  width: 100%;
-  padding: 15px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.2);
   background: #111;
   color: white;
-  font-size: 18px;
+  border: 1px solid rgba(255,255,255,.2);
   text-align: center;
-  outline: none;
 }
 
 .loginBox button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 15px;
   border: 0;
-  border-radius: 14px;
-  font-size: 18px;
-  font-weight: 900;
   background: white;
   color: black;
-}
-
-.loginBox small {
-  display: block;
-  margin-top: 14px;
-  opacity: .7;
+  font-weight: 900;
 }
 
 #hud {
@@ -90,7 +81,7 @@ html, body {
   left: 12px;
   right: 12px;
   top: env(safe-area-inset-top, 12px);
-  z-index: 10;
+  z-index: 20;
   pointer-events: none;
 }
 
@@ -102,16 +93,16 @@ html, body {
 
 .dash div {
   padding: 10px 8px;
-  border: 1px solid rgba(255,255,255,.16);
   border-radius: 16px;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.58);
   text-align: center;
+  backdrop-filter: blur(8px);
 }
 
 .dash span {
   display: block;
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 900;
 }
 
@@ -121,19 +112,21 @@ html, body {
   font-size: 10px;
 }
 
-#damageBar {
-  height: 7px;
-  margin-top: 8px;
-  border-radius: 99px;
-  overflow: hidden;
-  background: rgba(255,255,255,.14);
-}
-
-#damageFill {
-  display: block;
-  width: 0%;
-  height: 100%;
-  background: white;
+#mapName {
+  position: fixed;
+  left: 50%;
+  top: calc(82px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.12);
+  z-index: 14;
+  font-size: 12px;
+  opacity: .85;
+  pointer-events: none;
+  text-align: center;
+  max-width: 92vw;
 }
 
 #controls {
@@ -143,26 +136,27 @@ html, body {
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   display: flex;
   justify-content: space-between;
-  gap: 18px;
-  z-index: 20;
+  gap: 14px;
+  z-index: 30;
 }
 
 .leftPad, .rightPad {
   display: grid;
-  grid-template-columns: repeat(2, 82px);
-  gap: 10px;
+  grid-template-columns: repeat(2, 80px);
+  gap: 9px;
 }
 
 .ctrl {
-  height: 58px;
+  width: 80px;
+  height: 56px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.64);
+  background: rgba(0,0,0,.65);
   color: white;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
 }
 
 .ctrl:active, .ctrl.active {
@@ -172,18 +166,18 @@ html, body {
 }
 
 .throttle {
-  height: 126px;
+  height: 122px;
   grid-row: span 2;
-  background: rgba(255,255,255,.92);
-  color: #000;
+  background: white;
+  color: black;
+  font-size: 13px;
 }
 
 #tips {
   position: fixed;
   left: 50%;
-  bottom: 160px;
+  bottom: 162px;
   transform: translateX(-50%);
-  max-width: 90vw;
   padding: 10px 14px;
   border-radius: 999px;
   background: rgba(0,0,0,.55);
@@ -191,22 +185,23 @@ html, body {
   font-size: 12px;
   opacity: .85;
   z-index: 9;
-  pointer-events: none;
+  max-width: 90vw;
   text-align: center;
+  pointer-events: none;
 }
 
-@media (max-width: 760px) {
+@media(max-width:760px) {
   .leftPad, .rightPad {
-    grid-template-columns: repeat(2, 72px);
+    grid-template-columns: repeat(2, 70px);
   }
 
   .ctrl {
-    width: 72px;
+    width: 70px;
     height: 54px;
     font-size: 10px;
   }
 
   .throttle {
-    height: 118px;
+    height: 116px;
   }
 }

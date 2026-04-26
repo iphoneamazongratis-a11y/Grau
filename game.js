@@ -14,7 +14,7 @@ enterBtn.onclick = () => {
   }
 };
 
-passwordInput.addEventListener("keydown", (e) => {
+passwordInput.addEventListener("keydown", e => {
   if (e.key === "Enter") enterBtn.click();
 });
 
@@ -22,210 +22,346 @@ function startGame() {
   const canvas = document.getElementById("gameCanvas");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x080808);
-  scene.fog = new THREE.Fog(0x080808, 40, 260);
+  scene.background = new THREE.Color(0x79a9d8);
+  scene.fog = new THREE.Fog(0x79a9d8, 85, 360);
 
-  const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, .1, 1000);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x161616, 1.2);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x3a3a3a, 1.45);
   scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xffffff, 2);
-  sun.position.set(20, 35, 15);
+  const sun = new THREE.DirectionalLight(0xffffff, 2.1);
+  sun.position.set(55, 80, 35);
   sun.castShadow = true;
   scene.add(sun);
 
-  const roadMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .9 });
-  const road = new THREE.Mesh(new THREE.BoxGeometry(18, .2, 900), roadMat);
-  road.position.y = -0.12;
-  road.receiveShadow = true;
-  scene.add(road);
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x2f7c33, roughness: .9 });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(520, 520), groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
 
+  const asphaltMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: .86 });
   const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  for (let z = -420; z < 420; z += 20) {
-    const line = new THREE.Mesh(new THREE.BoxGeometry(.25, .02, 8), lineMat);
-    line.position.set(0, .02, z);
-    scene.add(line);
+
+  function road(x, z, w, l, rot=0) {
+    const r = new THREE.Mesh(new THREE.BoxGeometry(w, .08, l), asphaltMat);
+    r.position.set(x, .02, z);
+    r.rotation.y = rot;
+    r.receiveShadow = true;
+    scene.add(r);
+    return r;
   }
 
-  const sideMat = new THREE.MeshStandardMaterial({ color: 0x191919, roughness: .8 });
+  road(0, 0, 16, 470, 0);
+  road(0, 0, 16, 470, Math.PI/2);
+  road(65, -85, 12, 220, Math.PI/6);
+  road(-95, 80, 12, 230, -Math.PI/5);
+
+  for (let z = -230; z <= 230; z += 22) {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(.35, .03, 8), lineMat);
+    l.position.set(0, .08, z);
+    scene.add(l);
+  }
+  for (let x = -230; x <= 230; x += 22) {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(8, .03, .35), lineMat);
+    l.position.set(x, .08, 0);
+    scene.add(l);
+  }
+
+  const mats = {
+    brick: new THREE.MeshStandardMaterial({ color: 0xb6633c, roughness: .8 }),
+    wall: new THREE.MeshStandardMaterial({ color: 0xd9d0b8, roughness: .75 }),
+    roof: new THREE.MeshStandardMaterial({ color: 0x6b1e1e, roughness: .7 }),
+    blue: new THREE.MeshStandardMaterial({ color: 0x335a8a, roughness: .8 }),
+    favela: new THREE.MeshStandardMaterial({ color: 0x8c7a5f, roughness: .9 }),
+    shop: new THREE.MeshStandardMaterial({ color: 0xf0e4bb, roughness: .65 })
+  };
+
+  function building(x, z, w, h, d, mat) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    b.position.set(x, h/2, z);
+    b.castShadow = true;
+    b.receiveShadow = true;
+    scene.add(b);
+
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(w + .5, .35, d + .5), mats.roof);
+    roof.position.set(x, h + .18, z);
+    roof.castShadow = true;
+    scene.add(roof);
+    return b;
+  }
+
+  // Centro urbano
   for (let i = 0; i < 70; i++) {
-    const h = 2 + Math.random() * 8;
-    const box = new THREE.Mesh(new THREE.BoxGeometry(4 + Math.random()*7, h, 4 + Math.random()*7), sideMat);
-    box.position.set((Math.random() > .5 ? 1 : -1) * (18 + Math.random()*35), h/2 - .08, -420 + i * 13);
-    scene.add(box);
+    const x = (Math.random() - .5) * 430;
+    const z = (Math.random() - .5) * 430;
+    if (Math.abs(x) < 18 || Math.abs(z) < 18) continue;
+    const h = 4 + Math.random() * 16;
+    const w = 7 + Math.random() * 14;
+    const d = 7 + Math.random() * 14;
+    const mat = [mats.brick, mats.wall, mats.blue, mats.shop][Math.floor(Math.random()*4)];
+    building(x, z, w, h, d, mat);
+  }
+
+  // Favela/morro simples
+  for (let i = 0; i < 55; i++) {
+    const x = -170 + Math.random() * 90;
+    const z = -185 + Math.random() * 95;
+    const yOffset = Math.random() * 5;
+    const b = building(x, z, 7 + Math.random()*8, 3 + Math.random()*4, 7 + Math.random()*8, mats.favela);
+    b.position.y += yOffset;
+  }
+
+  // Posto BR fictício
+  building(88, 38, 38, 5, 18, mats.shop);
+  const canopy = new THREE.Mesh(new THREE.BoxGeometry(45, 1, 26), new THREE.MeshStandardMaterial({color:0xffffff}));
+  canopy.position.set(88, 7.2, 12);
+  scene.add(canopy);
+  for (let i = 0; i < 4; i++) {
+    const pump = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 1), new THREE.MeshStandardMaterial({color:0x111111}));
+    pump.position.set(75 + i*8, 1.1, 12);
+    scene.add(pump);
+  }
+
+  // Praça
+  const park = new THREE.Mesh(new THREE.CircleGeometry(32, 48), new THREE.MeshStandardMaterial({color:0x216b28}));
+  park.rotation.x = -Math.PI/2;
+  park.position.set(-70, .09, 72);
+  scene.add(park);
+
+  for (let i = 0; i < 26; i++) {
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.35, .45, 3, 8), new THREE.MeshStandardMaterial({color:0x4a2b14}));
+    const leaves = new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), new THREE.MeshStandardMaterial({color:0x1d6b2a}));
+    const x = -110 + Math.random()*85;
+    const z = 35 + Math.random()*80;
+    trunk.position.set(x, 1.5, z);
+    leaves.position.set(x, 4.2, z);
+    scene.add(trunk, leaves);
+  }
+
+  function makeCar() {
+    const g = new THREE.Group();
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, metalness: .2, roughness: .35 });
+    const glass = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: .1, roughness: .2 });
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2.1, .75, 4.1), bodyMat);
+    body.position.y = .72;
+    body.castShadow = true;
+    g.add(body);
+
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.65, .75, 1.8), glass);
+    cabin.position.set(0, 1.22, -.35);
+    cabin.castShadow = true;
+    g.add(cabin);
+
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: .7 });
+    const wheelGeo = new THREE.CylinderGeometry(.42, .42, .34, 18);
+    const wheels = [];
+    [[-.95,.42,1.35],[.95,.42,1.35],[-.95,.42,-1.35],[.95,.42,-1.35]].forEach(p => {
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.rotation.z = Math.PI/2;
+      w.position.set(...p);
+      g.add(w);
+      wheels.push(w);
+    });
+
+    g.userData.wheels = wheels;
+    return g;
   }
 
   function makeBike() {
-    const group = new THREE.Group();
+    const g = new THREE.Group();
+    const white = new THREE.MeshStandardMaterial({color:0xffffff, metalness:.15, roughness:.38});
+    const black = new THREE.MeshStandardMaterial({color:0x050505, roughness:.5});
+    const hot = new THREE.MeshStandardMaterial({color:0xff4a11, emissive:0x220000});
 
-    const black = new THREE.MeshStandardMaterial({ color: 0x050505, metalness: .25, roughness: .5 });
-    const white = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: .15, roughness: .35 });
-    const redHot = new THREE.MeshStandardMaterial({ color: 0xff3300, emissive: 0x220000 });
-
-    const body = new THREE.Mesh(new THREE.BoxGeometry(.9, .35, 2.0), white);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(.8,.35,2.0), white);
     body.position.y = .95;
-    body.castShadow = true;
-    group.add(body);
+    g.add(body);
 
-    const tank = new THREE.Mesh(new THREE.BoxGeometry(.75, .38, .75), white);
-    tank.position.set(0, 1.22, -.15);
-    tank.castShadow = true;
-    group.add(tank);
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(.65,.18,.85), black);
+    seat.position.set(0,1.27,.45);
+    g.add(seat);
 
-    const seat = new THREE.Mesh(new THREE.BoxGeometry(.68, .18, .9), black);
-    seat.position.set(0, 1.32, .55);
-    group.add(seat);
+    const wheelGeo = new THREE.TorusGeometry(.43,.07,14,30);
+    const fw = new THREE.Mesh(wheelGeo, black);
+    const rw = new THREE.Mesh(wheelGeo, black);
+    fw.rotation.y = Math.PI/2;
+    rw.rotation.y = Math.PI/2;
+    fw.position.set(0,.43,-1.05);
+    rw.position.set(0,.43,.95);
+    g.add(fw,rw);
 
-    const fork = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, 1.15, 12), black);
-    fork.rotation.x = .45;
-    fork.position.set(0, .8, -1.05);
-    group.add(fork);
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(1.1,.07,.08), black);
+    bar.position.set(0,1.38,-.95);
+    g.add(bar);
 
-    const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 1.25, 18), redHot);
-    exhaust.rotation.x = Math.PI / 2;
-    exhaust.position.set(.5, .78, .55);
-    group.add(exhaust);
+    const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,1.1,16), hot);
+    exhaust.rotation.x = Math.PI/2;
+    exhaust.position.set(.45,.78,.55);
+    g.add(exhaust);
 
-    const wheelGeo = new THREE.TorusGeometry(.43, .07, 14, 32);
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x030303, roughness: .7 });
-
-    const frontWheel = new THREE.Mesh(wheelGeo, tireMat);
-    frontWheel.rotation.y = Math.PI / 2;
-    frontWheel.position.set(0, .43, -1.05);
-    group.add(frontWheel);
-
-    const rearWheel = new THREE.Mesh(wheelGeo, tireMat);
-    rearWheel.rotation.y = Math.PI / 2;
-    rearWheel.position.set(0, .43, .95);
-    group.add(rearWheel);
-
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(1.25, .07, .08), black);
-    bar.position.set(0, 1.42, -1.0);
-    group.add(bar);
-
-    group.userData = { frontWheel, rearWheel, exhaust };
-    scene.add(group);
-    return group;
+    g.userData.wheels = [fw,rw];
+    g.userData.exhaust = exhaust;
+    return g;
   }
 
+  const car = makeCar();
   const bike = makeBike();
+  scene.add(car, bike);
+
+  let vehicleType = "car";
+  let active = car;
+  bike.visible = false;
 
   const keys = {
-    throttle: false,
-    brakeFront: false,
-    brakeRear: false,
-    clutch: false,
-    leanBack: false,
-    leanForward: false
+    throttle:false, brake:false, left:false, right:false, handbrake:false
   };
 
   function bindHold(id, key) {
     const el = document.getElementById(id);
-    const on = (e) => { e.preventDefault(); keys[key] = true; el.classList.add("active"); };
-    const off = (e) => { e.preventDefault(); keys[key] = false; el.classList.remove("active"); };
-    el.addEventListener("touchstart", on, { passive: false });
-    el.addEventListener("touchend", off, { passive: false });
-    el.addEventListener("touchcancel", off, { passive: false });
+    const on = e => { e.preventDefault(); keys[key] = true; el.classList.add("active"); };
+    const off = e => { e.preventDefault(); keys[key] = false; el.classList.remove("active"); };
+    el.addEventListener("touchstart", on, {passive:false});
+    el.addEventListener("touchend", off, {passive:false});
+    el.addEventListener("touchcancel", off, {passive:false});
     el.addEventListener("mousedown", on);
     el.addEventListener("mouseup", off);
     el.addEventListener("mouseleave", off);
   }
 
-  bindHold("throttle", "throttle");
-  bindHold("brakeFront", "brakeFront");
-  bindHold("brakeRear", "brakeRear");
-  bindHold("clutch", "clutch");
-  bindHold("leanBack", "leanBack");
-  bindHold("leanForward", "leanForward");
+  bindHold("throttle","throttle");
+  bindHold("brake","brake");
+  bindHold("left","left");
+  bindHold("right","right");
+  bindHold("handbrake","handbrake");
 
-  let gear = 0;
-  const gearRatios = [0, 2.8, 2.1, 1.65, 1.28, 1.05, .9];
-  document.getElementById("gearUp").onclick = () => { if (gear < 6) gear++; };
-  document.getElementById("gearDown").onclick = () => { if (gear > 0) gear--; };
+  let thirdPersonClose = false;
+  document.getElementById("cameraBtn").onclick = () => thirdPersonClose = !thirdPersonClose;
+
+  document.getElementById("vehicleBtn").onclick = () => {
+    const pos = active.position.clone();
+    const rot = active.rotation.y;
+    if (vehicleType === "car") {
+      vehicleType = "bike";
+      active = bike;
+      car.visible = false;
+      bike.visible = true;
+    } else {
+      vehicleType = "car";
+      active = car;
+      bike.visible = false;
+      car.visible = true;
+    }
+    active.position.copy(pos);
+    active.rotation.y = rot;
+  };
+
+  document.getElementById("horn").onclick = () => beep();
+
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 420;
+      gain.gain.value = .12;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => { osc.stop(); ctx.close(); }, 110);
+    } catch(e) {}
+  }
 
   let speed = 0;
   let rpm = 900;
-  let temp = 80;
-  let damage = 0;
-  let pitch = 0;
-  let pitchVelocity = 0;
-  let z = 0;
-  let x = 0;
-  let steerOffset = 0;
+  let gear = 0;
+  let yaw = 0;
+  let drift = 0;
+  let bikePitch = 0;
+  let last = performance.now();
 
   const speedEl = document.getElementById("speed");
   const rpmEl = document.getElementById("rpm");
   const gearEl = document.getElementById("gear");
-  const tempEl = document.getElementById("temp");
-  const damageFill = document.getElementById("damageFill");
+  const modeEl = document.getElementById("mode");
 
-  let last = performance.now();
+  function updateGear() {
+    if (speed < 3) gear = 0;
+    else if (speed < 28) gear = 1;
+    else if (speed < 55) gear = 2;
+    else if (speed < 85) gear = 3;
+    else if (speed < 120) gear = 4;
+    else gear = 5;
+  }
 
   function animate(now) {
-    const dt = Math.min((now - last) / 1000, .033);
+    const dt = Math.min((now - last)/1000, .033);
     last = now;
 
-    const ratio = gearRatios[gear] || 0;
-    const clutchFactor = keys.clutch ? .15 : 1;
-    const throttlePower = keys.throttle && gear > 0 ? 24 * ratio * clutchFactor : 0;
+    const isBike = vehicleType === "bike";
+    const accel = isBike ? 36 : 28;
+    const maxSpeed = isBike ? 155 : 175;
+    const brakeForce = keys.brake ? (isBike ? 24 : 20) : 0;
+    const handForce = keys.handbrake ? 18 : 0;
 
-    speed += throttlePower * dt;
-    speed -= .8 * dt;
-    if (keys.brakeRear) speed -= 12 * dt;
-    if (keys.brakeFront) speed -= 18 * dt;
-    speed = Math.max(0, Math.min(speed, 145));
+    if (keys.throttle) speed += accel * dt;
+    speed -= (1.8 + brakeForce + handForce) * dt;
+    speed = Math.max(0, Math.min(maxSpeed, speed));
 
-    rpm = 900 + speed * 95 * (ratio || .8);
-    if (keys.throttle && gear === 0) rpm += 3800;
-    if (keys.clutch && keys.throttle) rpm += 1400;
-    rpm = Math.min(12500, Math.max(900, rpm));
+    const steer = (keys.left ? 1 : 0) - (keys.right ? 1 : 0);
+    const steerPower = isBike ? 1.55 : 1.25;
+    yaw += steer * steerPower * dt * Math.min(speed / 32, 1.45);
 
-    const liftPower =
-      (keys.throttle ? 1 : 0) * (gear === 1 ? 1.6 : gear === 2 ? 1.15 : gear === 3 ? .75 : .35) +
-      (keys.leanBack ? 1.1 : 0) -
-      (keys.leanForward ? 1.45 : 0) -
-      (keys.brakeRear ? 1.4 : 0) -
-      (keys.brakeFront ? .65 : 0);
+    if (keys.handbrake && !isBike && Math.abs(steer) > 0) {
+      drift += steer * dt * 2.8;
+      speed -= dt * 5;
+    } else {
+      drift *= .92;
+    }
 
-    pitchVelocity += liftPower * dt * 1.15;
-    pitchVelocity -= pitch * dt * .95;
-    pitchVelocity *= .985;
-    pitch += pitchVelocity;
-    pitch = Math.max(-0.12, Math.min(1.15, pitch));
+    const forwardX = Math.sin(yaw + drift * .22);
+    const forwardZ = Math.cos(yaw + drift * .22);
 
-    if (pitch > 1.05 || rpm > 11200) damage += dt * (pitch > 1.05 ? 6 : 2.5);
-    if (keys.throttle) temp += dt * (rpm / 9000);
-    else temp -= dt * 2.5;
-    temp = Math.max(75, Math.min(130, temp));
-    if (temp > 115) damage += dt * 1.8;
-    damage = Math.min(100, damage);
+    active.position.x += forwardX * speed * dt * .55;
+    active.position.z += forwardZ * speed * dt * .55;
+    active.rotation.y = yaw;
+    active.rotation.z = isBike ? -steer * Math.min(speed/70, 1) * .42 : -drift * .09;
 
-    z -= speed * dt * .8;
-    steerOffset = Math.sin(now * 0.0017) * Math.min(speed / 120, 1) * .08;
-    x += steerOffset * dt;
+    if (isBike) {
+      const lift = (keys.throttle ? .9 : 0) + (keys.handbrake ? -1.4 : 0) + (keys.brake ? -.45 : 0);
+      bikePitch += (lift - bikePitch * .8) * dt;
+      bikePitch = Math.max(-.18, Math.min(.75, bikePitch));
+      active.rotation.x = -bikePitch;
+    } else {
+      active.rotation.x = 0;
+    }
 
-    bike.position.set(x, 0, z);
-    bike.rotation.x = -pitch;
-    bike.rotation.z = steerOffset * .8;
+    active.userData.wheels?.forEach(w => {
+      if (isBike) w.rotation.x -= speed * dt * 2.3;
+      else w.rotation.x -= speed * dt * 1.8;
+    });
 
-    bike.userData.frontWheel.rotation.x -= speed * dt * 2;
-    bike.userData.rearWheel.rotation.x -= speed * dt * 2.6;
-    bike.userData.exhaust.material.emissive.setHex(temp > 105 ? 0x441100 : 0x220000);
+    rpm = 850 + speed * (isBike ? 72 : 58) + (keys.throttle ? 1400 : 0);
+    rpm = Math.max(850, Math.min(isBike ? 11800 : 8200, rpm));
+    updateGear();
 
-    const camTarget = new THREE.Vector3(x, 2.6 + pitch * 2.2, z + 7.5 + pitch * 2.2);
-    camera.position.lerp(camTarget, .08);
-    camera.lookAt(x, 1.1 + pitch * 1.2, z - 2.4);
+    const backDistance = thirdPersonClose ? 7 : 13;
+    const height = thirdPersonClose ? 4.2 : 7.5;
+    const camX = active.position.x - Math.sin(yaw) * backDistance;
+    const camZ = active.position.z - Math.cos(yaw) * backDistance;
+    camera.position.lerp(new THREE.Vector3(camX, height, camZ), .08);
+    camera.lookAt(active.position.x, 1.3, active.position.z);
 
     speedEl.textContent = Math.round(speed);
     rpmEl.textContent = Math.round(rpm);
     gearEl.textContent = gear === 0 ? "N" : gear;
-    tempEl.textContent = Math.round(temp);
-    damageFill.style.width = damage + "%";
+    modeEl.textContent = isBike ? "MOTO" : "CARRO";
 
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
