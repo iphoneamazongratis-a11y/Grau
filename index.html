@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Grau Real Simulator Web</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loginScreen">
+    <div class="loginBox">
+      <h1>Grau Real</h1>
+      <p>Simulador 3D privado</p>
+      <input id="passwordInput" type="password" placeholder="Senha" autocomplete="off" />
+      <button id="enterBtn">Entrar</button>
+      <small>Senha padrão: <b>1234</b></small>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="hud">
+    <div class="dash">
+      <div><span id="speed">0</span><small>km/h</small></div>
+      <div><span id="rpm">900</span><small>RPM</small></div>
+      <div><span id="gear">N</span><small>marcha</small></div>
+      <div><span id="temp">80</span><small>°C</small></div>
+    </div>
+    <div id="damageBar"><span id="damageFill"></span></div>
+  </div>
+
+  <div id="controls">
+    <div class="leftPad">
+      <button class="ctrl" id="leanBack">GRAU</button>
+      <button class="ctrl" id="leanForward">FRENTE</button>
+      <button class="ctrl" id="brakeFront">FREIO D.</button>
+      <button class="ctrl" id="brakeRear">FREIO T.</button>
+    </div>
+
+    <div class="rightPad">
+      <button class="ctrl" id="clutch">EMBREAGEM</button>
+      <button class="ctrl" id="gearUp">MARCHA +</button>
+      <button class="ctrl" id="gearDown">MARCHA -</button>
+      <button class="ctrl throttle" id="throttle">ACELERAR</button>
+    </div>
+  </div>
+
+  <div id="tips">
+    Segure <b>ACELERAR</b> + <b>GRAU</b>. Use freio traseiro para controlar.
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
